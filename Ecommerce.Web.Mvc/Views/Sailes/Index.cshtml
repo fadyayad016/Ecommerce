@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Sales";
+}
+
+@section Styles {
+
+}
+
+<div class="page-title-box">
+    <h4 class="page-title">Sales</h4>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <a asp-action="Create" class="btn btn-blue">
+            <i class="fa-solid fa-plus"></i> Create New
+        </a>
+
+       
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="tblCategory" class="table">
+                <thead class="thead-light">
+                    <tr>
+                        <th>ID</th>
+                        <th class="all">Name</th>
+                        <th>Slug</th>
+                        <th>Parent Category</th>
+                        <th class="all"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Category 1</td>
+                        <td>category-1</td>
+                        <td>Parent 1</td>
+                        <td class="text-end user-action">
+                            <a class="btn btn-sky-outline btn-sm btn-action" href="#"><i class="fa fa-pen"></i></a>
+                            <a class="btn btn-carrot-outline btn-sm btn-action" href="#"><i class="fa fa-trash-alt"></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Category 2</td>
+                        <td>category-2</td>
+                        <td>Parent 2</td>
+                        <td class="text-end user-action">
+                            <a class="btn btn-sky-outline btn-sm btn-action" href="#"><i class="fa fa-pen"></i></a>
+                            <a class="btn btn-carrot-outline btn-sm btn-action" href="#"><i class="fa fa-trash-alt"></i></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#tblCategory').DataTable({
+                "responsive": true,
+                "autoWidth": false,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    { "targets": [0], "visible": false },
+                    { "targets": [4], "orderable": false, "className": "text-end user-action" }
+                ]
+            });
+        });
+    </script>
+}

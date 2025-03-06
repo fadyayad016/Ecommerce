@@ -1,0 +1,255 @@
+﻿@using Ecommerce.Application.Dto.Box
+@model BoxesDto
+
+@{
+    ViewData["Title"] = "Update Box";
+}
+
+<div class="page-title-box">
+    <h4 class="page-title">Update Box</h4>
+</div>
+
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="card-title">Update Box</div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="mb-3">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <div class="checkbox_item">
+                            <label class="d-flex align-items-center" asp-for="IsActive">
+                                <input type="checkbox" asp-for="IsActive">
+                                Is Active
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="card-title">Box Currencies</div>
+    </div>
+    <div class="card-body">
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tblBoxCurrency">
+                        <thead>
+                            <tr>
+                                <th>Currency</th>
+                                <th>Start Value</th>
+                                <th>Is Active</th>
+                                <th class="mw-50-c"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model?.BoxesCurrencies != null && Model.BoxesCurrencies.Count() != 0)
+                                            {
+                                foreach (var item in Model.BoxesCurrencies)
+                                {
+                                    <tr>
+                                        <td>
+                                            <select asp-for="@item.CurrencyId" class="form-select" asp-items="ViewBag.CurrencyId" name="CurrencyId">
+                                                <option value="">------</option>
+                                            </select>
+                                        </td>
+                                        <td class="mw-100-c"><input type="text" asp-for="@item.StartValue" name="StartValue" class="form-control" /></td>
+                                        <td class="mw-100-c"><input type="checkbox" asp-for="@item.IsActive" name="IsActive" class="form-check-input" /></td>
+                                        <td class="mw-100-c" hidden><input type="text" name="Id" asp-for="@item.Id" class="form-control" /></td>
+                                        <td class="mw-50-c"><a href="javascript:void(0)" class="btn btn-soft-secondary btn-sm remove"><i class="fa fa-trash-alt"></i></a></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <select class="form-select" asp-items="ViewBag.CurrencyId" name="CurrencyId">
+                                            <option value="">------</option>
+                                        </select>
+                                    </td>
+                                    <td class="mw-100-c"><input value="0" min="0" type="number" name="StartValue" class="form-control" /></td>
+                                    <td class="mw-100-c"><input type="checkbox" name="IsActive" class="form-check-input" /></td>
+                                    <td class="mw-100-c" hidden><input type="text" name="Id" class="form-control" /></td>
+                                    <td class="mw-50-c"><a href="javascript:void(0)" class="btn btn-soft-secondary btn-sm remove"><i class="fa fa-trash-alt"></i></a></td>
+                                </tr>
+                            }
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8"><a href="javascript:void(0)" id="AddAnotherBoxCurrency" class="btn btn-green-outline"><i class="fa fa-plus"></i> Add new Box Currency</a></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="d-grid gap-2 d-md-block">
+                    <button type="submit" class="btn btn-blue" id="saveBox">Save Box</button>
+                </div>
+                <div class="d-grid gap-2 d-md-block mt-3">
+                    <a asp-action="Index" class="btn btn-carrot-outline"><i class="fa fa-reply"></i> Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        $(document).on('click', '#AddAnotherBoxCurrency', function () {
+            var currencyOption = getCurrencyList();
+            var addtr = `
+                <tr>
+                    <td><select name="CurrencyId" class="form-select CurrencyId">${currencyOption}</select></td>
+                    <td class="mw-100-c"><input value="0" min="0" type="number" name="StartValue" class="form-control" /></td>
+                    <td class="mw-100-c"><input type="checkbox" name="IsActive" class="form-check-input" checked /></td>
+                    <td class="mw-100-c" hidden><input type="text" name="Id" class="form-control" /></td>
+                    <td class="mw-50-c"><a href="javascript:void(0)" class="btn btn-soft-secondary btn-sm remove"><i class="fa fa-trash-alt"></i></a></td>
+                </tr>`;
+
+            $("#tblBoxCurrency tbody").append(addtr);
+             updateDropdownOptions();
+        });
+
+        $(document).on('change', "select[name='CurrencyId']", function () {
+            updateDropdownOptions();
+        });
+
+        function updateDropdownOptions() {
+            // Get all selected values
+            var selectedCurrencies = [];
+            $("select[name='CurrencyId']").each(function () {
+                if ($(this).val()) {
+                    selectedCurrencies.push($(this).val().toString()); // Convert to string
+                }
+            });
+
+            // Update each dropdown
+            $("select[name='CurrencyId']").each(function () {
+                var currentValue = $(this).val(); // Store the current selection
+
+                // Get all options from the first dropdown (original list)
+                var fullOptions = getCurrencyList();
+
+                // Rebuild the options, removing selected ones except for the current value
+                var newOptions = '<option value="">------</option>';
+                $.each(fullOptions, function () {
+                    if (!selectedCurrencies.includes(this.value.toString()) || this.value.toString() === currentValue) {
+                        newOptions += `<option value="${this.value}" ${this.value == currentValue ? 'selected' : ''}>${this.text}</option>`;
+                    }
+                });
+
+                $(this).html(newOptions);
+            });
+        }
+
+        // Fetch the full currency list from the server (to get fresh options)
+        function getCurrencyList() {
+            var currencyList = [];
+            $.ajax({
+                url: "/box/getCurrency",
+                type: 'GET',
+                async: false,
+                dataType: 'json',
+                success: function (result) {
+                    currencyList = result;
+                },
+                error: function (e) {
+                    alert("Error!" + e);
+                }
+            });
+            return currencyList;
+        }
+
+
+
+        $('table').on('click', 'tr a.remove', function(e) {
+            e.preventDefault();
+            swal({
+                title: "Delete Confirm?",
+                text: "Are you wanted to delete this item?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+                reverseButtons: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    $(this).closest('tr').remove();
+                     updateDropdownOptions();
+                } else {
+                    //swal("Your file is safe!");
+                }
+            });
+        });
+
+             //Collect data
+            $("#saveBox").click(function(e) {
+                e.preventDefault();
+
+                var proArr = [];
+                proArr.length = 0;
+
+                    $.each($("#tblBoxCurrency tbody tr"),
+                    function() {
+                        proArr.push({
+                            CurrencyId: $(this).find('td:eq(0)').find('select[name=CurrencyId]').val(),
+                            StartValue: $(this).find('td:eq(1)').find('input[name=StartValue]').val(),
+                            IsActive: $(this).find('td:eq(2)').find('input[name=IsActive]').prop('checked'),
+                            Id: $(this).find('td:eq(3)').find('input[name=Id]').val(),
+                        });
+                    });
+
+              
+
+                var data = JSON.stringify({
+                    Id: $("#Id").val(),
+                    Name: $("#Name").val(),
+                    IsActive: $("#IsActive").val(),
+                    BoxesCurrencies: proArr
+                });
+
+                $.when(saveBox(data)).then(function(response) {
+                    //if success
+                    console.log(response);
+                    notifier.open({ type: "success", message: "Box Updated" });
+                    //alertify.message('Box Updated');
+                }).fail(function(err) {
+                    console.log(err);
+                    notifier.open({ type: "error", message: err });
+                });
+            });
+
+            function saveBox(data) {
+                var obj = jQuery.parseJSON(data);
+                return $.ajax({
+                        url: "/Box/UpdateBox",
+                    type: 'POST',
+                    data: obj,
+                    success: function(result) {
+                        console.log(result);
+                    },
+                    error: function() {
+                        alert("Error!")
+                    }
+                });
+            }
+
+
+
+    </script>
+}
+
+                         
